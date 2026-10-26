@@ -1,0 +1,43 @@
+app-id: com.github.FireFoxx150.NovaCommander
+runtime: org.freedesktop.Platform
+runtime-version: '26.08'
+sdk: org.freedesktop.Sdk
+command: nova-commander
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --filesystem=host
+  - --talk-name=org.freedesktop.Notifications
+modules:
+  - name: nova-commander
+    buildsystem: simple
+    sources:
+      - type: git
+        url: https://github.com/FireFoxx150/nova-commander.git
+        tag: v1.3.14
+        commit: 2569612262ba44df27764bb2f8c25b69d1ccc1d4
+      - type: archive
+        only-arches:
+          - x86_64
+        url: https://github.com/electron/electron/releases/download/v44.7.0/electron-v44.7.0-linux-x64.zip
+        sha256: 3ae7d5bdad61c664486c6ab61361dd084d064c8c08af8d13a687096e18ce555a
+        dest: electron
+      - type: file
+        path: nova-commander.sh
+      - type: file
+        path: com.github.FireFoxx150.NovaCommander.desktop
+      - type: file
+        path: com.github.FireFoxx150.NovaCommander.metainfo.xml
+    build-commands:
+      - mkdir -p /app/lib/nova-commander/resources/app
+      - cp -a electron/. /app/lib/nova-commander/
+      - mv /app/lib/nova-commander/electron /app/lib/nova-commander/nova-commander
+      - rm -f /app/lib/nova-commander/resources/default_app.asar
+      - cp -a main.js preload.js package.json icon.png renderer LICENSE THIRD_PARTY_NOTICES.md /app/lib/nova-commander/resources/app/
+      - install -Dm755 nova-commander.sh /app/bin/nova-commander
+      - install -Dm644 com.github.FireFoxx150.NovaCommander.desktop /app/share/applications/com.github.FireFoxx150.NovaCommander.desktop
+      - install -Dm644 com.github.FireFoxx150.NovaCommander.metainfo.xml /app/share/metainfo/com.github.FireFoxx150.NovaCommander.metainfo.xml
+      - install -Dm644 icon.svg /app/share/icons/hicolor/scalable/apps/com.github.FireFoxx150.NovaCommander.svg
+      - for s in 16 32 48 64 128 256 512; do install -Dm644 build/icons/$s.png /app/share/icons/hicolor/${s}x${s}/apps/com.github.FireFoxx150.NovaCommander.png; done
